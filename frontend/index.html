@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>ChatApp</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="chat-app">
+      <!-- Chat List (left side on desktop, full screen on mobile) -->
+      <div class="chat-list">
+        <div class="left-panel">
+          <button class="hamburger-menu" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <div class="chat-list-profile">
+            <img
+              src="http://localhost:3000/uploads/profile/default.png"
+              id="profile-avatar"
+              alt="My Avatar"
+              class="profile-avatar"
+            />
+          </div>
+        </div>
+        <div class="right-panel">
+          <div class="chat-list-header">
+            <h1>Let's Chat</h1>
+          </div>
+
+          <div class="chat-list-items" id="chat-list-items"></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Chat Screen (right side on desktop, separate screen on mobile) -->
+      <div class="chat-screen">
+        <div class="welcome-screen">
+          <h1>Welcome!</h1>
+          <p>Select a chat to start messaging.</p>
+        </div>
+        <header class="chat-header">
+          <div class="header-left">
+            <button class="back-btn" aria-label="Go back">
+              <img src="assets/arrow-left.svg" alt="Back" />
+            </button>
+            <img
+              src="avatar-group.svg"
+              alt="Group Avatar"
+              class="group-avatar"
+              id="header-avatar"
+              role="img"
+              aria-label="Group Avatar"
+            />
+            <h2 class="chat-title" id="chat-title"></h2>
+          </div>
+          <div class="header-right">
+            <button
+              class="anonymous-toggle-btn"
+              id="Anonymous-toggle-btn"
+              aria-label="Send as Anonymous"
+            >
+              <img src="assets/Group 1261156928.svg" alt="Anonymous" />
+            </button>
+          </div>
+        </header>
+
+        <!-- Messages Section (JS will populate here) -->
+        <main
+          class="chat-messages"
+          id="chat-messages"
+          role="region"
+          aria-live="polite"
+        >
+          <!-- Messages will be dynamically appended -->
+        </main>
+
+        <div class="Anonymous-note" id="Anonymous-note" hidden>
+          <div class="note-image">
+            <img src="assets/note-img.svg" alt="Note" />
+          </div>
+          <p>Now, you're appearing as Anonymous!</p>
+          <div class="note-image">
+            <img src="assets/note-img.svg" alt="Note" />
+          </div>
+        </div>
+        <!-- Message Input -->
+        <div class="chat-input">
+          <div class="message-box">
+            <input
+              type="text"
+              id="message-input"
+              placeholder="Type a message..."
+              aria-label="Type a message"
+            />
+            <div class="input-actions">
+              <button class="camera-btn" aria-label="Open camera">
+                <img src="assets/Noun (1).svg" alt="Camera" />
+              </button>
+              <button class="attach-btn" aria-label="Attach file">
+                <img src="assets/Noun.svg" alt="Attach" />
+              </button>
+            </div>
+          </div>
+          <div class="send-btn-container">
+            <button class="send-btn" id="send-btn" aria-label="Send message">
+              <img src="assets/Group 1261156599.svg" alt="Send" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
