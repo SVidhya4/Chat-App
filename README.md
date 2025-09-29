@@ -39,5 +39,7 @@ Socket.IO
 Database
 
 MySQL
+
+
 <img width="359" height="801" alt="image" src="https://github.com/user-attachments/assets/10d36362-65e3-46ff-9074-d942673442b2" /> <img width="363" height="801" alt="image" src="https://github.com/user-attachments/assets/784fee5b-1b87-4aa6-a5ab-8c0029d97c8b" />
 
