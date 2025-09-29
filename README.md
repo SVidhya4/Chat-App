@@ -1,4 +1,4 @@
-💬 Chat App
+# 💬 Chat App
 
 A real-time chat application built with Node.js, Express, Socket.IO, and a responsive frontend.
 Supports 1-on-1 conversations, group chats, anonymous messaging, and online/offline status indicators — all without requiring login.
@@ -6,7 +6,7 @@ Supports 1-on-1 conversations, group chats, anonymous messaging, and online/offl
 <img width="1919" height="916" alt="image" src="https://github.com/user-attachments/assets/7244a8fb-7e78-4fa2-8ccf-82244aa2d749" />
 
 
-🚀 Features
+# 🚀 Features
 
 💬 1-on-1 & Group Chat – Seamless real-time messaging
 
@@ -22,22 +22,17 @@ Supports 1-on-1 conversations, group chats, anonymous messaging, and online/offl
 
 📱 Responsive UI – Works smoothly on desktop & mobile
 
-🛠️ Tech Stack
+# 🛠️ Tech Stack
 
-Frontend
-
+# Frontend
 HTML, CSS, JavaScript (Vanilla)
 
-Backend
-
+# Backend
 Node.js
-
 Express.js
-
 Socket.IO
 
-Database
-
+# Database
 MySQL
 
 
