@@ -10,15 +10,9 @@ Supports 1-on-1 conversations, group chats, anonymous messaging, and online/offl
 
 💬 1-on-1 & Group Chat – Seamless real-time messaging
 
-👤 Profile Avatars – User & group profile images with fallbacks
-
-👥 Group Chats – Auto group icon in chat header
-
 🟢 Online/Offline Status – Presence indicators beside avatars
 
 🙈 Anonymous Mode – Toggle anonymity in group chats
-
-🕒 Message Timestamps – Date separators & ordered chats
 
 📱 Responsive UI – Works smoothly on desktop & mobile
 
