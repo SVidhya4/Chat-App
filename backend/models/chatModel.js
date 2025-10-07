@@ -9,7 +9,6 @@ const getChatList = async (userId) => {
         c.created_at,
         c.is_group,
         
-        -- ✨ FIX: Use a CASE statement to only get user_id for 1-on-1 chats
         CASE
             WHEN c.is_group = 0
             THEN (SELECT u.id

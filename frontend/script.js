@@ -24,6 +24,7 @@ let userId = null;
 let userName = null;
 let activeConversationId = null;
 let lastMessageDate = null;
+let lastMessageSenderId = null;
 let isCurrentChatGroup = false;
 let isAnonymous = false;
 let onlineUsers = [];
@@ -123,11 +124,15 @@ async function loadChatList() {
           chatItem.classList.add("online");
         }
       }
+
+      let avatarSrc = chat.profile_pic || 'uploads/profile/default.png';
+        if (chat.is_group === 1) {
+            avatarSrc = 'uploads/profile/group.svg';
+        }
+
       chatItem.innerHTML = `
                 <div class="avatar-container">
-                    <img src="http://localhost:3000/${
-                      chat.profile_pic || "uploads/profile/default.png"
-                    }" class="chat-avatar" alt="Avatar"/>
+                    <img src="http://localhost:3000/${avatarSrc}" class="chat-avatar" alt="Avatar"/>
                     <div class="status-dot"></div>
                 </div>
                 <div class="chat-details">
@@ -159,37 +164,41 @@ async function loadChatList() {
 }
 
 async function openConversation(conversationId, name, avatarUrl) {
-  chatScreen.classList.add("conversation-active");
-  activeConversationId = conversationId;
-  chatTitle.textContent = name;
+    chatScreen.classList.add("conversation-active");
+    activeConversationId = conversationId;
+    chatTitle.textContent = name;
 
-  if (avatarUrl) {
-    headerAvatar.src = `http://localhost:3000/${avatarUrl}`;
-  } else {
-    headerAvatar.src = "avatar-group.png"; // Fallback to a default
-  }
+    try {
+        const response = await fetch(`http://localhost:3000/api/messages/${conversationId}`);
+        const data = await response.json();
+        isCurrentChatGroup = data.is_group;
 
-  chatMessages.innerHTML = "";
-  lastMessageDate = null;
-  messageInput.disabled = false;
-  messageInput.placeholder = "Type a message...";
-  messageInput.focus();
-  if (window.innerWidth <= 480) {
-    chatScreen.classList.add("active");
-  }
-  socket.emit("join-room", activeConversationId);
-  try {
-    const response = await fetch(
-      `http://localhost:3000/api/messages/${conversationId}`
-    );
-    const data = await response.json();
-    isCurrentChatGroup = data.is_group;
-    data.messages.forEach((msg) => appendMessage(msg));
-    scrollToBottom();
-  } catch (err) {
-    console.error("Error loading messages:", err);
-  }
+        // Set header avatar
+        if (isCurrentChatGroup) {
+            headerAvatar.src = "http://localhost:3000/uploads/profile/group.svg";
+        } else {
+            headerAvatar.src = `http://localhost:3000/${avatarUrl}`;
+        }
+
+        chatMessages.innerHTML = "";
+        lastMessageDate = null;
+        lastMessageSenderId = null;
+        messageInput.disabled = false;
+        messageInput.placeholder = "Type a message...";
+        messageInput.focus();
+        if (window.innerWidth <= 480) {
+            chatScreen.classList.add("active");
+        }
+
+        socket.emit("join-room", activeConversationId);
+
+        data.messages.forEach((msg) => appendMessage(msg));
+        scrollToBottom();
+    } catch (err) {
+        console.error("Error loading messages:", err);
+    }
 }
+
 
 function formatDateHeader(dateString) {
   const date = new Date(dateString);
@@ -204,52 +213,73 @@ function formatDateHeader(dateString) {
   const paddedMonth = month < 10 ? "0" + month : month;
   return `${day}/${paddedMonth}/${year}`;
 }
-
 function appendMessage(msg) {
-  const messageDate = new Date(msg.timestamp).toDateString();
-  if (messageDate !== lastMessageDate) {
-    const dateEl = document.createElement("div");
-    dateEl.className = "date-separator";
-    dateEl.textContent = formatDateHeader(msg.timestamp);
-    chatMessages.appendChild(dateEl);
-    lastMessageDate = messageDate;
-  }
-  const msgEl = document.createElement("div");
-  const isSent = msg.sender_id === userId;
-  msgEl.classList.add("message", isSent ? "sent" : "received");
-  let avatarHtml = "";
-  if (isCurrentChatGroup && !isSent) {
-    const senderIsOnline = onlineUsers.includes(msg.sender_id.toString());
-    avatarHtml = `
-        <div class="avatar-container ${senderIsOnline ? "online" : ""}">
-            <img src="http://localhost:3000/${
-              msg.profile_pic || "uploads/profile/default.png"
-            }" class="message-avatar" alt="Avatar"/>
-            <div class="status-dot"></div>
-        </div>
-    `;
-  }
-  let senderNameHtml = "";
-  if (isCurrentChatGroup && !isSent) {
-    senderNameHtml = `<div class="sender-name">${msg.sender_name}</div>`;
-  }
-  msgEl.innerHTML = `
+    const messageDate = new Date(msg.timestamp).toDateString();
+    if (messageDate !== lastMessageDate) {
+        const dateEl = document.createElement("div");
+        dateEl.className = "date-separator";
+        dateEl.textContent = formatDateHeader(msg.timestamp);
+        chatMessages.appendChild(dateEl);
+        lastMessageDate = messageDate;
+    }
+
+    const msgEl = document.createElement("div");
+    const isSent = msg.sender_id === userId || (isAnonymous && msg.sender_id === 0);
+    msgEl.classList.add("message", isSent ? "sent" : "received");
+
+    let avatarHtml = '';
+    if (!isSent) {
+        // show avatar only if sender changed
+        if (msg.sender_id !== lastMessageSenderId) {
+            const senderIsOnline = onlineUsers.includes(msg.sender_id.toString());
+            avatarHtml = `
+                <div class="avatar-container ${senderIsOnline ? "online" : ""}">
+                    <img src="http://localhost:3000/${msg.profile_pic || "uploads/profile/default.png"}" class="message-avatar" alt="Avatar"/>
+                    <div class="status-dot"></div>
+                </div>
+            `;
+        } else {
+            avatarHtml = `<div class="avatar-placeholder"></div>`;
+        }
+    }
+
+    let senderNameHtml = '';
+if (isCurrentChatGroup && !isSent) {
+    // Determine if the message should be displayed as anonymous
+    let displayName = msg.sender_name;
+    
+    // If the message was sent by current user, check current anonymous toggle
+    if (msg.sender_id === userId && isAnonymous) {
+        displayName = "Anonymous";
+    }
+
+    // If the sender_id is 0, it's already anonymous
+    if (msg.sender_id === 0) {
+        displayName = "Anonymous";
+    }
+
+    senderNameHtml = `<div class="sender-name">${displayName}</div>`;
+}
+
+
+
+    msgEl.innerHTML = `
         ${avatarHtml}
         <div class="message-bubble">
             ${senderNameHtml}
             <div class="message-content">${msg.content}</div>
             <div class="message-info">
                 <span class="timestamp">${formatTimestamp(msg.timestamp)}</span>
-                ${
-                  isSent
-                    ? '<img src="assets/double-tick.svg" class="status-tick" alt="Delivered"/>'
-                    : ""
-                }
+                ${isSent ? '<img src="assets/double-tick.svg" class="status-tick" alt="Delivered"/>' : ''}
             </div>
         </div>
     `;
-  chatMessages.appendChild(msgEl);
+    chatMessages.appendChild(msgEl);
+
+    // update last sender
+    lastMessageSenderId = msg.sender_id;
 }
+
 
 async function sendMessage() {
   const content = messageInput.value.trim();
@@ -268,6 +298,9 @@ async function sendMessage() {
     });
     if (!response.ok) throw new Error("Failed to send message");
     const newMessage = await response.json();
+    appendMessage(newMessage);
+    scrollToBottom();
+    loadChatList();
   } catch (err) {
     console.error("Error sending message:", err);
     messageInput.value = messageContent;
